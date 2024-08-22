@@ -1,0 +1,18 @@
+# Exclude virtual environment
+venv/
+.env
+
+# Exclude sensitive files
+credentials.json
+.streamlit/secrets.toml
+
+# Byte-compiled files
+__pycache__/
+
+# System-specific files
+.DS_Store
+.idea/
+
+# Ignore client secret JSON file
+client_secret_*.json
+
