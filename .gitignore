@@ -16,3 +16,6 @@ __pycache__/
 # Ignore client secret JSON file
 client_secret_*.json
 
+# Ignore PyCharm project files
+.idea/
+
