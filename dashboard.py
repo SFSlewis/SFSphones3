@@ -5,13 +5,20 @@ from datetime import datetime
 from pydrive2.auth import GoogleAuth
 from pydrive2.drive import GoogleDrive
 
-# Authenticate using Streamlit secrets and the service account
-gauth = GoogleAuth()
-gauth.credentials = ServiceAccountCredentials.from_json_keyfile_dict(
-    st.secrets["gdrive"],
-    scopes=["https://www.googleapis.com/auth/drive"]
-)
-drive = GoogleDrive(gauth)
+
+# Authentication using service account
+def authenticate():
+    gauth = GoogleAuth()
+    scope = ['https://www.googleapis.com/auth/drive']
+
+    credentials = ServiceAccountCredentials.from_json_keyfile_dict(
+        st.secrets["gdrive_service_account"], scope
+    )
+    gauth.credentials = credentials
+    return gauth
+
+
+gauth = authenticate()
 
 # Set page configuration
 st.set_page_config(page_title='SFS Call Stats', page_icon=':telephone_receiver:', layout='wide')
