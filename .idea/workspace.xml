@@ -5,8 +5,9 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="513801cb-a36c-4939-a905-aaa2094e7e31" name="Changes" comment="initial stricture for online phone app - LD&#10;&#10;main script working but not yet hourly stats - linked to google and uploads output to google drive&#10;&#10;now has dashboard py script working and linked to google which fetches summary csv files dynamically from google drive&#10;&#10;voip and dashboard scripts now functioning to an extent and ready to test deployment.&#10;&#10;Can then fix visual tweaks on dashboard view later - 23/08/2024 - LD">
-      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dashboard.py" beforeDir="false" afterPath="$PROJECT_DIR$/dashboard.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/voip.py" beforeDir="false" afterPath="$PROJECT_DIR$/voip.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -90,7 +91,23 @@
       <option name="project" value="LOCAL" />
       <updated>1724404087501</updated>
     </task>
-    <option name="localTasksCounter" value="5" />
+    <task id="LOCAL-00005" summary="initial stricture for online phone app - LD&#10;&#10;main script working but not yet hourly stats - linked to google and uploads output to google drive&#10;&#10;now has dashboard py script working and linked to google which fetches summary csv files dynamically from google drive&#10;&#10;voip and dashboard scripts now functioning to an extent and ready to test deployment.&#10;&#10;Can then fix visual tweaks on dashboard view later - 23/08/2024 - LD">
+      <option name="closed" value="true" />
+      <created>1724427221672</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1724427221672</updated>
+    </task>
+    <task id="LOCAL-00006" summary="initial stricture for online phone app - LD&#10;&#10;main script working but not yet hourly stats - linked to google and uploads output to google drive&#10;&#10;now has dashboard py script working and linked to google which fetches summary csv files dynamically from google drive&#10;&#10;voip and dashboard scripts now functioning to an extent and ready to test deployment.&#10;&#10;Can then fix visual tweaks on dashboard view later - 23/08/2024 - LD">
+      <option name="closed" value="true" />
+      <created>1724427462628</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1724427462628</updated>
+    </task>
+    <option name="localTasksCounter" value="7" />
     <servers />
   </component>
   <component name="VcsManagerConfiguration">

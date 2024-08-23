@@ -1,5 +1,4 @@
 import time
-import glob
 import os
 from datetime import datetime
 from selenium import webdriver
@@ -7,80 +6,93 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 import chromedriver_autoinstaller
+import logging
 import streamlit as st
 from pydrive2.auth import GoogleAuth
 from pydrive2.drive import GoogleDrive
+from oauth2client.service_account import ServiceAccountCredentials
+from io import BytesIO
 
 # Automatically install chromedriver if not present
 chromedriver_autoinstaller.install()
 
-# Authenticate and initialize PyDrive2 for Google Drive
-gauth = GoogleAuth()
-gauth.LocalWebserverAuth()
-drive = GoogleDrive(gauth)
+# Configure logging
+logging.basicConfig(level=logging.INFO)
+logging.info("Script started")
+
+# Google Drive authentication
+def authenticate():
+    scope = ["https://www.googleapis.com/auth/drive"]
+    credentials = ServiceAccountCredentials.from_json_keyfile_dict(
+        st.secrets["gdrive_service_account"], scope
+    )
+    gauth = GoogleAuth()
+    gauth.credentials = credentials
+    drive = GoogleDrive(gauth)
+    return drive
+
+# Set up Google Drive authentication
+drive = authenticate()
+
+# Set up the Selenium driver with Chrome options for automatic download
+options = webdriver.ChromeOptions()
+options.add_argument("--headless")  # Runs Chrome in headless mode.
+options.add_argument("--disable-gpu")
+options.add_argument("--no-sandbox")
+driver = webdriver.Chrome(options=options)
 
 # Function to log in
-def login(driver, username, password):
+def login():
+    username = st.secrets["voip_username"]
+    password = st.secrets["voip_password"]
+
     driver.get("https://my.voipfone.co.uk/#!/dashboard+auth")
     WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.NAME, 'username'))).send_keys(username)
     WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.NAME, 'password'))).send_keys(password)
     WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.CSS_SELECTOR, 'button[type="submit"]'))).click()
 
-# Function to navigate and download the file
-def download_call_records(driver):
+
+# Function to navigate and download the file directly to memory
+def download_call_records():
     # Navigate directly to the 'Call Records' page
     driver.get("https://my.voipfone.co.uk/#!/services/call-records/view")
-    # Wait for the page to load
-    WebDriverWait(driver, 30).until(EC.presence_of_element_located((By.CSS_SELECTOR, 'body')))
+    WebDriverWait(driver, 60).until(EC.presence_of_element_located((By.CSS_SELECTOR, 'body')))
 
     # Scroll to the bottom of the page
     driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
     time.sleep(3)  # Wait for any lazy-loaded elements to load
 
     # Wait for 'Download CSV' button to be clickable and click it
-    download_csv_button = WebDriverWait(driver, 30).until(
+    download_csv_button = WebDriverWait(driver, 60).until(
         EC.element_to_be_clickable((By.CSS_SELECTOR, 'button[name="csv"]'))
     )
     driver.execute_script("arguments[0].click();", download_csv_button)
-    # Adjust the timing below based on how long it typically takes to initiate the download
-    time.sleep(10)  # Wait for the download to initiate
+    time.sleep(10)  # Wait for the download to complete
 
-# Function to manage the downloaded file and upload it to Google Drive
-def manage_and_upload_file():
-    download_dir = r"C:\Users\Union Eleven\Downloads"
-    list_of_files = glob.glob(download_dir + "\\*.csv")
-    latest_file = max(list_of_files, key=os.path.getctime)
+    # Capture the CSV file content from the download (this assumes it’s in the response body)
+    file_content = driver.page_source
+    return BytesIO(file_content.encode('utf-8'))
 
-    # Rename the file
+# Function to upload the file to Google Drive
+# Function to upload the file to Google Drive
+def upload_to_drive(file_content):
     today = datetime.now().strftime('%d-%m-%Y')
     new_filename = f"{today}.csv"
-    new_filepath = os.path.join(download_dir, new_filename)
-    os.rename(latest_file, new_filepath)
 
-    # Upload the file to Google Drive
+    logging.info(f"Uploading {new_filename} to Google Drive")
     file_drive = drive.CreateFile({'title': new_filename})
-    file_drive.SetContentFile(new_filepath)
+
+    # Use SetContentString to handle the in-memory content
+    file_drive.SetContentString(file_content.getvalue().decode('utf-8'))  # Assuming it's a CSV string
+
     file_drive.Upload()
-    print(f"Uploaded {new_filename} to Google Drive")
+    logging.info(f"Uploaded {new_filename} to Google Drive")
 
-# Load credentials from Streamlit secrets
-username = st.secrets["voip_username"]
-password = st.secrets["voip_password"]
 
-# Set up the Selenium driver with Chrome options for automatic download
-options = webdriver.ChromeOptions()
-options.add_experimental_option("prefs", {
-    "download.default_directory": r"C:\Users\Union Eleven\Downloads",
-    "download.prompt_for_download": False,
-})
-options.add_argument("--headless")  # Runs Chrome in headless mode.
-driver = webdriver.Chrome(options=options)
+# Perform the steps
+login()
+file_content = download_call_records()
+upload_to_drive(file_content)
 
-# Perform the automated process
-try:
-    login(driver, username, password)
-    download_call_records(driver)
-    manage_and_upload_file()
-finally:
-    # Close the browser
-    driver.quit()
+# Close the browser
+driver.quit()

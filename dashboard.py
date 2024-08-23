@@ -85,14 +85,25 @@ st.image(logo, width=300)
 
 # Function to download a file from Google Drive
 def download_file_from_drive(file_name):
-    file_list = drive.ListFile({'q': f"title='{file_name}' and trashed=false"}).GetList()
-    if file_list:
-        file = file_list[0]  # Get the first matching file
+    try:
+        # Search for the file on Google Drive
+        file_list = drive.ListFile({'q': f"title='{file_name}' and trashed=false"}).GetList()
+
+        # Check if the file was found
+        if not file_list:
+            st.error(f"File '{file_name}' not found on Google Drive.")
+            return None
+
+        # Download the file
+        file = file_list[0]
         file.GetContentFile(f'assets/{file_name}')
-        return pd.read_csv(f'assets/{file_name}')
-    else:
-        st.error(f"File '{file_name}' not found on Google Drive.")
+        st.success(f"Downloaded {file_name} to assets/{file_name}")
+        return f'assets/{file_name}'
+
+    except Exception as e:
+        st.error(f"Failed to download {file_name} from Google Drive: {str(e)}")
         return None
+
 
 # Load and process data
 hourly_filename = f'hourly_summary_{datetime.now().date()}.csv'
