@@ -5,9 +5,12 @@ from datetime import datetime
 from pydrive2.auth import GoogleAuth
 from pydrive2.drive import GoogleDrive
 
-# Authenticate and initialize PyDrive2
+# Authenticate using Streamlit secrets and the service account
 gauth = GoogleAuth()
-gauth.LocalWebserverAuth()  # This will open a browser window for Google sign-in
+gauth.credentials = ServiceAccountCredentials.from_json_keyfile_dict(
+    st.secrets["gdrive"],
+    scopes=["https://www.googleapis.com/auth/drive"]
+)
 drive = GoogleDrive(gauth)
 
 # Set page configuration

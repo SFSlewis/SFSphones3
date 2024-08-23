@@ -15,6 +15,7 @@ __pycache__/
 
 # Ignore client secret JSON file
 client_secret_*.json
+.streamlit/secrets.toml
 
 # Ignore PyCharm project files
 .idea/
