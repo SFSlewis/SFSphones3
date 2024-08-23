@@ -4,6 +4,7 @@ import altair as alt
 from datetime import datetime
 from pydrive2.auth import GoogleAuth
 from pydrive2.drive import GoogleDrive
+from oauth2client.service_account import ServiceAccountCredentials
 
 
 # Authentication using service account
