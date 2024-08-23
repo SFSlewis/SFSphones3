@@ -164,7 +164,33 @@ if current_csv_file:
         # Upload the summary file to Google Drive
         upload_to_drive(summary_path, summary_file)
 
-    print("All summaries have been processed and uploaded to Google Drive.")
+    # Calculate hourly stats for the current day
+    answered_calls_today = answered_calls[answered_calls['Date'] == current_day].copy()
+    answered_calls_today['Hour'] = answered_calls_today['Date & Time'].dt.hour
+
+    # Create a DataFrame for all possible hours in the day (0-23)
+    hours = pd.DataFrame({'Hour': range(24)})
+
+    # Group by 'Hour' and 'Name' to count calls per hour for each staff
+    hourly_calls_today = answered_calls_today.groupby(['Hour', 'Name']).size().reset_index(name='Calls')
+
+    # Merge with all hours to ensure every hour is represented
+    hourly_summary_today = pd.merge(hours, hourly_calls_today, on='Hour', how='left').fillna(0)
+    hourly_summary_today['Total Calls'] = hourly_summary_today.groupby('Hour')['Calls'].transform('sum')
+
+    # Save hourly summary for today to CSV and upload it to Google Drive
+    hourly_summary_file = os.path.join('assets', f'hourly_summary_{current_day}.csv')
+    hourly_summary_today.to_csv(hourly_summary_file, index=False)
+    upload_to_drive(hourly_summary_file, f'hourly_summary_{current_day}.csv')
+
+    # Print hourly summary for debugging
+    print(f"Hourly Summary for {current_day}:")
+    print(hourly_summary_today)
+
+    # Print last updated time
+    last_updated = now.strftime('%Y-%m-%d %H:%M:%S')
+    print(f"Data processed from the file: {current_csv_file['title']}")
+    print(f"Last updated on: {last_updated}")
 
 else:
     print("No CSV files found in Google Drive.")
